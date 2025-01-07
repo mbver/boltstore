@@ -1,8 +1,6 @@
 package boltstore
 
 import (
-	"errors"
-
 	"github.com/boltdb/bolt"
 	"github.com/mbver/hraft"
 )
@@ -17,10 +15,6 @@ var (
 	// Bucket names we perform transactions in
 	dbLogs = []byte("logs")
 	dbConf = []byte("conf")
-
-	// An error indicating a given key does not exist
-	ErrKeyNotFound = errors.New("key not found")
-	ErrLogNotFound = errors.New("log not found")
 )
 
 type BoltStore struct {
@@ -139,7 +133,7 @@ func (s *LogStore) GetLog(idx uint64, log *hraft.Log) error {
 	val := bucket.Get(toBytes(idx))
 
 	if val == nil {
-		return ErrLogNotFound
+		return hraft.ErrLogNotFound
 	}
 	return decode(val, log)
 }
@@ -251,7 +245,7 @@ func (kv *KVStore) Get(k []byte) ([]byte, error) {
 	val := bucket.Get(k)
 
 	if val == nil {
-		return nil, ErrKeyNotFound
+		return nil, hraft.ErrKeyNotFound
 	}
 	return append([]byte(nil), val...), nil
 }

@@ -58,6 +58,11 @@ func createTestLog(idx uint64, data string) *hraft.Log {
 	}
 }
 
+func TestBoltStores_Implement(t *testing.T) {
+	var _ hraft.LogStore = (*LogStore)(nil)
+	var _ hraft.KVStore = (*KVStore)(nil)
+}
+
 func TestStore_CreateBoltStore(t *testing.T) {
 	store, cleanup, err := newTestStoreWithOpts(nil)
 	defer cleanup()
@@ -195,7 +200,7 @@ func TestLogStore_GetLog(t *testing.T) {
 	var log hraft.Log
 
 	err = store.GetLog(1, &log)
-	require.Equal(t, ErrLogNotFound, err)
+	require.Equal(t, hraft.ErrLogNotFound, err)
 
 	logs := []*hraft.Log{
 		createTestLog(1, "log1"),
@@ -263,10 +268,10 @@ func TestLogStore_DeleteRange(t *testing.T) {
 	require.Nil(t, err)
 	var gotLog hraft.Log
 	err = store.GetLog(1, &gotLog)
-	require.Equal(t, ErrLogNotFound, err)
+	require.Equal(t, hraft.ErrLogNotFound, err)
 
 	err = store.GetLog(2, &gotLog)
-	require.Equal(t, ErrLogNotFound, err)
+	require.Equal(t, hraft.ErrLogNotFound, err)
 }
 
 func TestKVStore_Set_Get(t *testing.T) {
@@ -276,7 +281,7 @@ func TestKVStore_Set_Get(t *testing.T) {
 	k, v := []byte("hello"), []byte("world")
 
 	_, err = store.Get([]byte(k))
-	require.Equal(t, ErrKeyNotFound, err)
+	require.Equal(t, hraft.ErrKeyNotFound, err)
 
 	err = store.Set(k, v)
 	require.Nil(t, err)
@@ -293,7 +298,7 @@ func TestKVStore_SetUint64_GetUint64(t *testing.T) {
 	k, v := []byte("abc"), uint64(123)
 
 	_, err = store.GetUint64([]byte(k))
-	require.Equal(t, ErrKeyNotFound, err)
+	require.Equal(t, hraft.ErrKeyNotFound, err)
 
 	err = store.SetUint64(k, v)
 	require.Nil(t, err)
